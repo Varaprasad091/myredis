@@ -10,11 +10,9 @@ on:
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -28,5 +26,48 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
 
+      - name: Start MyRedis server
+        env:
+          MYREDIS_PORT: 6379
+          MYREDIS_MAX_MEMORY: 3
+          MYREDIS_REPLICATION_ENABLED: "false"
+          MYREDIS_PERSISTENCE_ENABLED: "false"
+        run: |
+          python main.py > myredis.log 2>&1 &
+          echo $! > myredis.pid
+
+      - name: Wait for MyRedis
+        run: |
+          python - <<'PY'
+          import socket
+          import time
+
+          for attempt in range(30):
+              try:
+                  with socket.create_connection(
+                      ("127.0.0.1", 6379),
+                      timeout=1
+                  ):
+                      print("MyRedis is ready")
+                      break
+              except OSError:
+                  time.sleep(1)
+          else:
+              print("MyRedis failed to start")
+              print(open("myredis.log").read())
+              raise SystemExit(1)
+          PY
+
       - name: Run tests
         run: pytest -q
+
+      - name: Show server log
+        if: always()
+        run: cat myredis.log
+
+      - name: Stop MyRedis
+        if: always()
+        run: |
+          if [ -f myredis.pid ]; then
+            kill "$(cat myredis.pid)" || true
+          fi

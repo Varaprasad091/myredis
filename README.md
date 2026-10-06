@@ -1,3 +1,4 @@
+[![MyRedis CI](https://github.com/Varaprasad091/myredis/actions/workflows/ci.yml/badge.svg)](https://github.com/Varaprasad091/myredis/actions/workflows/ci.yml)
 # MyRedis
 
 A lightweight Redis-compatible in-memory key-value database/server built from scratch in Python.

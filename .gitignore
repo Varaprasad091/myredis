@@ -1,0 +1,23 @@
+# Virtual Environment
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Redis persistence
+*.rdb
+*.aof
+
+# Logs
+*.log
+
+# Test cache
+.pytest_cache/
